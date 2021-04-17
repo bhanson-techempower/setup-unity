@@ -20,9 +20,15 @@ async function run() {
         }
         const unityHubPath = await installUnityHub();
         const unityPath = await installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset);
-        if (unityModules.length > 0) {
-            await installUnityModules(unityHubPath, unityVersion, unityModules, unityModulesChild);
+        // As of Unity Hub 2.4.3, installing multiple modules at once is broken. Install them individually for now.
+        // https://fogbugz.unity3d.com/default.asp?1284906_3ote8o57i4lmik9d
+        // https://issuetracker.unity3d.com/issues/unity-hub-cli-no-longer-contains-windows-il2cpp-and-universal-windows-platform-modules
+        for (let unityModule of unityModules) {
+            await installUnityModules(unityHubPath, unityVersion, [unityModule], unityModulesChild);
         }
+        // if (unityModules.length > 0) {
+        //     await installUnityModules(unityHubPath, unityVersion, unityModules, unityModulesChild);
+        // }
         await postInstall();
 
         core.setOutput('unity-version', unityVersion);
